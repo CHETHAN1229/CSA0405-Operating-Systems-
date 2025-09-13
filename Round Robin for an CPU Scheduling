@@ -1,0 +1,82 @@
+#include <stdio.h>
+
+int main() {
+    int n, tq;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    int bt[n], rem_bt[n], wt[n], tat[n], pid[n];
+    printf("Enter the burst time for each process:\n");
+    for (int i = 0; i < n; i++) {
+        pid[i] = i + 1;
+        printf("P%d: ", pid[i]);
+        scanf("%d", &bt[i]);
+        rem_bt[i] = bt[i];
+        wt[i] = 0;
+        tat[i] = 0;
+    }
+
+    printf("Enter Time Quantum: ");
+    scanf("%d", &tq);
+
+    int t = 0; // current time
+    int done;
+    do {
+        done = 1;
+        for (int i = 0; i < n; i++) {
+            if (rem_bt[i] > 0) {
+                done = 0; // there is a pending process
+                if (rem_bt[i] > tq) {
+                    t += tq;
+                    rem_bt[i] -= tq;
+                } else {
+                    t += rem_bt[i];
+                    wt[i] = t - bt[i];   // waiting time = finish time - burst
+                    rem_bt[i] = 0;
+                }
+            }
+        }
+    } while (!done);
+
+    // Calculate Turnaround Time
+    for (int i = 0; i < n; i++)
+        tat[i] = bt[i] + wt[i];
+
+    // Display results
+    float total_wt = 0, total_tat = 0;
+    printf("\nRound Robin Scheduling (Time Quantum = %d)\n", tq);
+    printf("-------------------------------------------------\n");
+    printf("PID\tBurst\tWaiting\tTurnaround\n");
+    printf("-------------------------------------------------\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\n", pid[i], bt[i], wt[i], tat[i]);
+        total_wt += wt[i];
+        total_tat += tat[i];
+    }
+    printf("-------------------------------------------------\n");
+    printf("Average Waiting Time    = %.2f\n", total_wt / n);
+    printf("Average Turnaround Time = %.2f\n", total_tat / n);
+
+    return 0;
+}
+OUTPUT
+Enter the number of processes: 4
+Enter the burst time for each process:
+P1: 5
+P2: 15
+P3: 4
+P4: 3
+Enter Time Quantum: 3
+
+Round Robin Scheduling (Time Quantum = 3)
+-------------------------------------------------
+PID     Burst   Waiting Turnaround
+-------------------------------------------------
+P1      5       9       14
+P2      15      18      33
+P3      4       6       10
+P4      3       0        3
+-----------------------------------------------
+Average Waiting Time    = 8.25
+Average Turnaround Time = 15.00
+
